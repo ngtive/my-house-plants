@@ -9,10 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "browserslist": "^4.25.1",
     "crawlee": "^3.14.0",
     "dotenv": "^17.2.1",
     "drizzle-orm": "^0.44.3",
     "next": "15.4.4",
+    "playwright": "^1.54.1",
     "postgres": "^3.4.7",
     "puppeteer": "^24.15.0",
     "react": "19.1.0",

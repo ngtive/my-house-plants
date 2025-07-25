@@ -1,5 +1,6 @@
 import { PlaywrightCrawler } from "crawlee";
 import { NextResponse } from "next/server";
+import { chromium } from "playwright";
 
 function calculate_percentage(distance_km: number): number {
   const PERIGEE_KM = 363300;
@@ -18,22 +19,34 @@ export async function GET(req: Request) {
         status: 403,
       },
     );
-  const crawler = new PlaywrightCrawler({
-    maxRequestsPerCrawl: 10, // Limitation for only 10 requests (do not use if you want to crawl all links)
-    async requestHandler({ log, page }) {
-      log.info("Start crawling");
 
-      const distance = await page.$(".distanceKm.text-flash");
-      const distanceText = await distance?.innerText();
-      if (!distanceText) return;
+  const browser = await chromium.launch(); // Or 'firefox' or 'webkit'.
+  const page = await browser.newPage();
 
-      const distanceNumber = parseFloat(distanceText.replace(",", ""));
-      log.info(`🌕 Live Moon Distance: ${distanceNumber.toFixed(1)}km`);
-      log.info(
-        `📊 Orbit Position: ${calculate_percentage(distanceNumber).toFixed(1)}%`,
-      );
+  await page.goto("https://theskylive.com/moon-info");
+  await page.waitForSelector(".distanceKm.text-flash");
+
+  const distance = await page.$(".distanceKm.text-flash");
+  const distanceText = await distance?.innerText();
+  if (!distanceText)
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Distance text is incorrect",
+      },
+      {
+        status: 500,
+      },
+    );
+
+  const distanceNumber = parseFloat(distanceText.replace(",", ""));
+  const percentageNumber = calculate_percentage(distanceNumber).toFixed(1);
+
+  return NextResponse.json({
+    success: true,
+    data: {
+      distance: `🌕 Live Moon Distance: ${distanceNumber.toFixed(1)}km`,
+      percentage: `📊 Orbit Position: ${calculate_percentage(distanceNumber).toFixed(1)}%`,
     },
   });
-
-  await crawler.run(["https://theskylive.com/moon-info"]);
 }
