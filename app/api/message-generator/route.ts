@@ -34,6 +34,8 @@ export async function GET(req: Request) {
 
   const body = await result.text();
   const $ = cheerio.load(body);
+
+  const magnitude = $("label");
   const distanceNumber = parseFloat(
     $(".distanceKm").first().text().replace(",", ""),
   );
@@ -53,8 +55,12 @@ export async function GET(req: Request) {
       : "",
   };
 
-  await bot.telegram.sendMessage(
-    process.env.TELEGRAM_CHANNEL_ID!,
-    `🌚 Moon distance from earth: ${data.distance}\r\n📊 Percentage until reaches end of it's cycle: ${data.percentage}\r\nRight now: ${data.position}`,
+  return Response.json(
+    {
+      method: "sendMessage",
+      chat_id: process.env.TELEGRAM_CHANNEL_ID!,
+      text: `🌚 Moon distance from earth: ${data.distance}\r\n📊 Percentage until reaches end of it's cycle: ${data.percentage}\r\nRight now: ${data.position}`,
+    },
+    { status: 200 },
   );
 }
