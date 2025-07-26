@@ -16,6 +16,7 @@ export async function GET(req: Request) {
   if (req.headers.get("X-Secret-Key") !== process.env.CRON_JOB_SECRET)
     return NextResponse.json(
       {
+        success: false,
         message: "Access denied",
       },
       {
@@ -55,12 +56,12 @@ export async function GET(req: Request) {
       : "",
   };
 
-  return Response.json(
-    {
-      method: "sendMessage",
-      chat_id: process.env.TELEGRAM_CHANNEL_ID!,
-      text: `🌚 Moon distance from earth: ${data.distance}\r\n📊 Percentage until reaches end of it's cycle: ${data.percentage}\r\nRight now: ${data.position}`,
-    },
-    { status: 200 },
+  await bot.telegram.sendMessage(
+    process.env.TELEGRAM_CHANNEL_ID!,
+    `🌚 Moon distance from earth: ${data.distance}\r\n📊 Percentage until reaches end of it's cycle: ${data.percentage}\r\nRight now: ${data.position}`,
   );
+
+  return Response.json({
+    success: true,
+  });
 }
