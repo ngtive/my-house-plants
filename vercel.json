@@ -1,0 +1,6 @@
+{
+  "crons": [{
+    "path": "/api/message-generator",
+    "schedule": "0 10 * * *"
+  }]
+}
