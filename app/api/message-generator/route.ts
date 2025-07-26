@@ -13,16 +13,12 @@ function calculate_percentage(distance_km: number): number {
 }
 
 export async function GET(req: Request) {
-  if (req.headers.get("X-Secret-Key") !== process.env.CRON_JOB_SECRET)
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Access denied",
-      },
-      {
-        status: 403,
-      },
-    );
+  const authHeader = req.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response("Unauthorized", {
+      status: 401,
+    });
+  }
 
   const result = await fetch("https://theskylive.com/moon-info", {
     headers: {
