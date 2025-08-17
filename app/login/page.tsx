@@ -1,18 +1,3 @@
-import { Config, Effect, Either, Layer, pipe, Schedule } from "effect";
-import AuthService from "@/services/auth";
-import { Refinement } from "effect/ParseResult";
-import { log } from "console";
-import { AiLanguageModel, AiResponse } from "@effect/ai";
-import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai";
-import { NodeHttpClient } from "@effect/platform-node";
-import { db } from "@/db";
-import { records } from "@/db/schema";
-import { desc } from "drizzle-orm";
-import {
-  exportSkyLiveInformation,
-  getSkyLiveResponse,
-} from "@/app/api/message-generator/route";
-
 export default async function Page() {
   // const generateDadJoke = Effect.gen(function* () {
   //   const response = yield* AiLanguageModel.generateText({
@@ -57,30 +42,30 @@ export default async function Page() {
   //   result = result.text;
   // }
 
-  const body = await getSkyLiveResponse();
-
-  const lastOne = (
-    await db.select().from(records).orderBy(desc(records.created_at))
-  )?.[0];
-
-  const { distanceNumber, distancePercentage, constellation, magnitude } =
-    await exportSkyLiveInformation(body);
-
-  const data = {
-    distance: distanceNumber.toFixed(1),
-    percentage: distancePercentage.toFixed(1),
-    position: lastOne?.distance
-      ? lastOne?.distance > distanceNumber
-        ? "receding"
-        : "approaching"
-      : "",
-    constellation: constellation,
-  };
+  // const body = await getSkyLiveResponse();
+  //
+  // const lastOne = (
+  //   await db.select().from(records).orderBy(desc(records.created_at))
+  // )?.[0];
+  //
+  // const { distanceNumber, distancePercentage, constellation, magnitude } =
+  //   await exportSkyLiveInformation(body);
+  //
+  // const data = {
+  //   distance: distanceNumber.toFixed(1),
+  //   percentage: distancePercentage.toFixed(1),
+  //   position: lastOne?.distance
+  //     ? lastOne?.distance > distanceNumber
+  //       ? "receding"
+  //       : "approaching"
+  //     : "",
+  //   constellation: constellation,
+  // };
 
   return (
     <div>
       <pre dir="ltr" className="font-[tahoma]">
-        {JSON.stringify(data, null, 2)}
+        OK
       </pre>
     </div>
   );
