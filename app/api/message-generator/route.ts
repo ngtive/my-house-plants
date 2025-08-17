@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import * as cheerio from "cheerio";
 import { db } from "@/db";
 import { records } from "@/db/schema";
@@ -12,14 +11,26 @@ function calculate_percentage(distance_km: number): number {
   return ((distance_km - PERIGEE_KM) / (APOGEE_KM - PERIGEE_KM)) * 100;
 }
 
-export async function GET(req: Request) {
-  const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response("Unauthorized", {
-      status: 401,
-    });
-  }
+async function exportSkyLiveInformation(body: any) {
+  const $ = cheerio.load(body);
 
+  const magnitude = $("label");
+  const distanceNumber = parseFloat(
+    $(".distanceKm").first().text().replace(",", ""),
+  );
+  const distancePercentage = calculate_percentage(distanceNumber);
+  const constellation = $(
+    "a [href='/sky/constellations/taurus-constellation']",
+  ).text();
+
+  return {
+    magnitude,
+    distanceNumber,
+    distancePercentage,
+    constellation,
+  };
+}
+async function getSkyLiveResponse() {
   const result = await fetch("https://theskylive.com/moon-info", {
     headers: {
       cookie:
@@ -29,18 +40,38 @@ export async function GET(req: Request) {
     method: "GET",
   });
 
-  const body = await result.text();
-  const $ = cheerio.load(body);
-
-  const magnitude = $("label");
-  const distanceNumber = parseFloat(
-    $(".distanceKm").first().text().replace(",", ""),
+  return result.text();
+}
+async function messageGenerator(data: {
+  distance: string;
+  percentage: string;
+  position: string;
+  constellation: string;
+}) {
+  return (
+    `🌚 Moon distance from earth: ${data.distance}\r\n` +
+    `📊 Percentage until reaches end of it's cycle: ${data.percentage}\r\n` +
+    `❄ Right now: ${data.position}\r\n` +
+    `🌌 Constellation: ${data.constellation}\r\n`
   );
-  const distancePercentage = calculate_percentage(distanceNumber);
+}
+
+export async function GET(req: Request) {
+  const authHeader = req.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response("Unauthorized", {
+      status: 401,
+    });
+  }
+
+  const body = await getSkyLiveResponse();
 
   const lastOne = (
     await db.select().from(records).orderBy(desc(records.created_at))
   )?.[0];
+
+  const { distanceNumber, distancePercentage, constellation, magnitude } =
+    await exportSkyLiveInformation(body);
 
   const data = {
     distance: distanceNumber.toFixed(1),
@@ -50,11 +81,12 @@ export async function GET(req: Request) {
         ? "receding"
         : "approaching"
       : "",
+    constellation: constellation,
   };
 
   await bot.telegram.sendMessage(
     process.env.TELEGRAM_CHANNEL_ID!,
-    `🌚 Moon distance from earth: ${data.distance}\r\n📊 Percentage until reaches end of it's cycle: ${data.percentage}\r\nRight now: ${data.position}`,
+    await messageGenerator(data),
   );
 
   return Response.json({

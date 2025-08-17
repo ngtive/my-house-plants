@@ -9,12 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@effect/ai-openai": "^0.28.2",
+    "@effect/platform-node": "^0.95.0",
+    "@neondatabase/serverless": "^1.0.1",
     "axios": "^1.11.0",
     "browserslist": "^4.25.1",
     "cheerio": "^1.1.0",
     "crawlee": "^3.14.0",
     "dotenv": "^17.2.1",
     "drizzle-orm": "^0.44.3",
+    "effect": "^3.17.6",
+    "jose": "^6.0.12",
     "next": "15.4.4",
     "playwright": "^1.54.1",
     "postgres": "^3.4.7",
@@ -24,6 +29,7 @@
     "telegraf": "^4.16.3"
   },
   "devDependencies": {
+    "@effect/language-service": "^0.35.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
