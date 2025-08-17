@@ -4,23 +4,30 @@ import { records } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import bot from "@/bot";
 
-function calculate_percentage(distance_km: number): number {
+export function calculate_percentage(distance_km: number): number {
   const PERIGEE_KM = 363300;
   const APOGEE_KM = 405500;
 
   return ((distance_km - PERIGEE_KM) / (APOGEE_KM - PERIGEE_KM)) * 100;
 }
 
-async function exportSkyLiveInformation(body: any) {
+export async function exportSkyLiveInformation(body: any) {
   const $ = cheerio.load(body);
 
-  const magnitude = $("label");
+  const magnitude = $(
+    "#_header_bottom_tools > div.content > div.main_content > div:nth-child(31) > ar",
+  );
   const distanceNumber = parseFloat(
-    $(".distanceKm").first().text().replace(",", ""),
+    $(
+      "#_header_bottom_tools > div.content > div.main_content > div:nth-child(54) > ar",
+    )
+      .first()
+      .text()
+      .replace(",", ""),
   );
   const distancePercentage = calculate_percentage(distanceNumber);
   const constellation = $(
-    "a [href='/sky/constellations/taurus-constellation']",
+    "#_header_bottom_tools > div.content > div.main_content > div:nth-child(30) > ar > a",
   ).text();
 
   return {
@@ -30,7 +37,7 @@ async function exportSkyLiveInformation(body: any) {
     constellation,
   };
 }
-async function getSkyLiveResponse() {
+export async function getSkyLiveResponse() {
   const result = await fetch("https://theskylive.com/moon-info", {
     headers: {
       cookie:
@@ -42,16 +49,14 @@ async function getSkyLiveResponse() {
 
   return result.text();
 }
-async function messageGenerator(data: {
+export async function messageGenerator(data: {
   distance: string;
   percentage: string;
-  position: string;
   constellation: string;
 }) {
   return (
-    `🌚 Moon distance from earth: ${data.distance}\r\n` +
-    `📊 Percentage until reaches end of it's cycle: ${data.percentage}\r\n` +
-    `❄ Right now: ${data.position}\r\n` +
+    `🌚 Moon distance from earth: ${data.distance}km\r\n` +
+    `📊 Percentage until reaches end of it's cycle: %${data.percentage}\r\n` +
     `🌌 Constellation: ${data.constellation}\r\n`
   );
 }
@@ -70,7 +75,7 @@ export async function GET(req: Request) {
     await db.select().from(records).orderBy(desc(records.created_at))
   )?.[0];
 
-  const { distanceNumber, distancePercentage, constellation, magnitude } =
+  const { distanceNumber, distancePercentage, constellation } =
     await exportSkyLiveInformation(body);
 
   const data = {
