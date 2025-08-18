@@ -52,7 +52,7 @@ export async function messageGenerator(data: {
 }) {
   return (
     `🌚 Moon distance from earth: ${data.distance}km\r\n` +
-    `📊 Percentage until reaches end of it's cycle: %${data.percentage}\r\n` +
+    // `📊 Percentage until reaches end of it's cycle: %${data.percentage}\r\n` +
     `🌌 Constellation: ${data.constellation}\r\n`
   );
 }
