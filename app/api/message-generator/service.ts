@@ -15,7 +15,7 @@ export async function exportSkyLiveInformation(body: any) {
   );
   const distanceNumber = parseFloat(
     $(
-      "#_header_bottom_tools > div.content > div.main_content > div:nth-child(54) > ar",
+      "#_header_bottom_tools > div.content > div.main_content > div:nth-child(45) > ar",
     )
       .first()
       .text()

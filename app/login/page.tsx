@@ -1,3 +1,11 @@
+import {
+  exportSkyLiveInformation,
+  getSkyLiveResponse,
+} from "@/app/api/message-generator/service";
+import { db } from "@/db";
+import { records } from "@/db/schema";
+import { desc } from "drizzle-orm";
+
 export default async function Page() {
   // const generateDadJoke = Effect.gen(function* () {
   //   const response = yield* AiLanguageModel.generateText({
@@ -62,10 +70,24 @@ export default async function Page() {
   //   constellation: constellation,
   // };
 
+  const body = await getSkyLiveResponse();
+
+  const lastOne = (
+    await db.select().from(records).orderBy(desc(records.created_at))
+  )?.[0];
+
+  const { distanceNumber, distancePercentage, constellation } =
+    await exportSkyLiveInformation(body);
+
+  const data = {
+    distance: distanceNumber.toFixed(1),
+    percentage: distancePercentage.toFixed(1),
+    constellation: constellation,
+  };
   return (
     <div>
       <pre dir="ltr" className="font-[tahoma]">
-        OK
+        {JSON.stringify(data, null, 2)}
       </pre>
     </div>
   );

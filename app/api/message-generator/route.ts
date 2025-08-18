@@ -28,11 +28,6 @@ export async function GET(req: Request) {
   const data = {
     distance: distanceNumber.toFixed(1),
     percentage: distancePercentage.toFixed(1),
-    position: lastOne?.distance
-      ? lastOne?.distance > distanceNumber
-        ? "receding"
-        : "approaching"
-      : "",
     constellation: constellation,
   };
 
