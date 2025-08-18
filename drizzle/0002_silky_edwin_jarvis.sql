@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "last_interaction" timestamp DEFAULT now();

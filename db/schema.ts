@@ -24,6 +24,7 @@ export const users = pgTable(
     first_name: varchar().notNull(),
     last_name: varchar(),
     username: varchar(),
+    last_interaction: timestamp().defaultNow(),
   },
   (table) => [index("telegram_id_idx").on(table.telegram_id)],
 );

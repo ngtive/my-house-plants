@@ -15,6 +15,13 @@
       "when": 1755443073056,
       "tag": "0001_awesome_gwen_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1755511688173,
+      "tag": "0002_silky_edwin_jarvis",
+      "breakpoints": true
     }
   ]
 }
