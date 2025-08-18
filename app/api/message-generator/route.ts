@@ -18,9 +18,9 @@ export async function GET(req: Request) {
 
   const body = await getSkyLiveResponse();
 
-  const lastOne = (
-    await db.select().from(records).orderBy(desc(records.created_at))
-  )?.[0];
+  // const lastOne = (
+  //   await db.select().from(records).orderBy(desc(records.created_at))
+  // )?.[0];
 
   const { distanceNumber, distancePercentage, constellation } =
     await exportSkyLiveInformation(body);
@@ -30,6 +30,11 @@ export async function GET(req: Request) {
     percentage: distancePercentage.toFixed(1),
     constellation: constellation,
   };
+
+  await db.insert(records).values({
+    distance: Number(distanceNumber),
+    percentage: Number(data.percentage),
+  });
 
   await bot.telegram.sendMessage(
     process.env.TELEGRAM_CHANNEL_ID!,
