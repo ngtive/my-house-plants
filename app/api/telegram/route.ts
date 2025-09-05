@@ -14,6 +14,6 @@ export async function POST(req: Request) {
   return NextResponse.json({
     method: "sendMessage",
     chat_id: body.message.chat.id,
-    text: "Hello",
+    text: "Hi, here is my channel @moonliveupdate",
   });
 }
