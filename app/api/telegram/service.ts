@@ -9,15 +9,17 @@ class UserService {
     last_name?: string,
     username?: string,
   ) {
-    return db
-      .insert(users)
-      .values({
-        telegram_id: telegram_id,
-        first_name: first_name,
-        last_name: last_name,
-        username: username,
-      })
-      .returning();
+    return db.transaction(async (trx) => {
+      return trx
+        .insert(users)
+        .values({
+          telegram_id: telegram_id,
+          first_name: first_name,
+          last_name: last_name,
+          username: username,
+        })
+        .returning();
+    });
   }
   async deleteUser(telegram_id: bigint) {
     return db
